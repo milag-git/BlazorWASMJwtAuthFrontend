@@ -1,2 +1,1 @@
-This project is about authentication and authorization in blazor webassembly. It tells how add login functionlity and display views on base of user role.
-It did not created api for this project. I already have existing project, you can pull that project from here https://github.com/rd003/DotNet6-jwt-refresh-tokens
+This is Blazor Web Assembly Frontend project with jwt Authentication, login, logout.  MudBlazor Layout and components are used. This can be deployed on Azure Static WebApps. This is to be used in conjunction with WebApi Backend.Users and Roles created in the Backend. Target Framework .NET 7.0
