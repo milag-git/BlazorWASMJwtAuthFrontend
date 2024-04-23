@@ -4,19 +4,9 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>2280924f-faea-4aec-a799-854e968c9c9a</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="Pages\Counter.razor" />
-    <Content Remove="Pages\Dashboard.razor" />
-    <Content Remove="Pages\FetchData.razor" />
-    <Content Remove="Pages\Home.razor" />
-    <Content Remove="Shared\SurveyPrompt.razor" />
-    <Content Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
-    <Content Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
-  </ItemGroup>
-
+ 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.17" />

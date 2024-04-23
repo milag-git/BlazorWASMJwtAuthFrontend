@@ -38,57 +38,7 @@
 
         <MudAlert Severity="Severity.Info">@message</MudAlert>
 
-    </MudItem>
-
-
-    <MudItem xs="12">
-        <MudPaper Class="pa-4">
-
-            <MudDatePicker Label="select date" TextChanged="OnDateSelected"></MudDatePicker>
-
-        </MudPaper>
-
-    </MudItem>
-
-    <MudItem xs="12">
-
-        <MudPaper Class="pa-4">
-            @if (details == null)
-            {
-                @if (HideLabel == true)
-                {
-                    <MudSelect T="string" @bind-Value=@selectedFile Variant="Variant.Outlined" AdornmentColor="Color.Primary">
-                        <MudSelectItem Value="@selectedFile" Disabled="true">No Files Loaded</MudSelectItem>
-
-                    </MudSelect>
-                }
-                else
-                {
-                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                }
-
-            }
-            else if (details.Count() == 0)
-            {
-                <MudSelect T="string" @bind-Value=@selectedFile Variant="Variant.Outlined" AdornmentColor="Color.Primary">
-                    <MudSelectItem Value="@selectedFile" Disabled="true">No Files Found</MudSelectItem>
-
-                </MudSelect>
-            }
-
-            else
-            {
-
-                <MudSelect T="string" @bind-Value=@selectedFile Placeholder="Please Select" Variant="Variant.Outlined" AdornmentColor="Color.Primary">
-                    <MudSelectItem Value="@selectedFile" Disabled="true">Please Select</MudSelectItem>
-                    @foreach (var detail in details)
-                    {
-                        <MudSelectItem Value="@detail.FileNumber">@detail.ProjectInfo</MudSelectItem>
-                    }
-                </MudSelect>
-            }
-        </MudPaper>
-    </MudItem>
+    </MudItem>  
 
 
 
@@ -147,7 +97,6 @@
     </MudGrid>
     @code
 {
-        private bool HideLabel { get; set; } = true;
         private string HideDivDisplay { get; set; } = "inline-block";
         private int currentFileSelection = 0;
         private string imageURL = string.Empty;
@@ -155,27 +104,11 @@
         private string imageURLKey = string.Empty;
         private string message = "Photos";
         private Dictionary<string, string> ImageList = new Dictionary<string, string>();
-        private IEnumerable<FileDetails>? details;
-        private string selectedFile { get; set; } = string.Empty;
         private int maxAllowedFiles = 10;
         private long maxFileSize = 100000;
         private List<string> fileNames = new List<string>();
         private string selectedDate = DateTime.Now.Date.ToString();
-        private Dictionary<string, IBrowserFile> ImageDict = new Dictionary<string, IBrowserFile>();
-
-
-        public async Task OnDateSelected(string dt)
-        {
-            message = "Photos";
-            HideLabel = false;
-            selectedDate = dt;
-
-            string selecteddatestring = selectedDate.Replace("/", "-");
-            int id = 1;
-            details = await Http.GetFromJsonAsync<IEnumerable<FileDetails>>($"FileDetails/{id}/{selecteddatestring}");
-            this.StateHasChanged();
-        }
-
+        private Dictionary<string, IBrowserFile> ImageDict = new Dictionary<string, IBrowserFile>();     
 
 
         private void loadmessage()
@@ -225,11 +158,7 @@
                 this.StateHasChanged();
 
             }
-            else if (selectedFile == string.Empty)
-            {
-                message = "No File Number selected";
-                this.StateHasChanged();
-            }
+          
             else
             {
                 using var content = new MultipartFormDataContent();
@@ -246,8 +175,6 @@
 
                 }
                 var response = await Http.PostAsync("UploadProjectPhotos", content);
-
-
                 ImageList.Clear();
                 ImageDict.Clear();
                 message = "Photos Uploaded";

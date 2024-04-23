@@ -22,7 +22,7 @@ namespace BlazorJwtAuth.Services
             this._httpClient = httpClient;
             this._authStateProvider = authStateProvider;
             this._localStorage = localStorage;
-            baseUrl = "https://interrawebapiapp.azurewebsites.net/api/authorization";
+            baseUrl = "'Backend Web Api Endpoint'/api/authorization";
         }
 
 
