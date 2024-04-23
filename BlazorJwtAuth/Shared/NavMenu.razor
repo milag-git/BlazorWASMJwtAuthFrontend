@@ -1,0 +1,48 @@
+﻿<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All"><img src="Interralogo.png" /></MudNavLink>
+    <MudNavGroup Title="Menu" Expanded="true">
+        <MudNavLink Href="/" Match="NavLinkMatch.Prefix">Home</MudNavLink>
+        <MudNavLink Href="/aboutus" Match="NavLinkMatch.Prefix">About Us</MudNavLink>
+        <MudNavLink Href="/careers" Match="NavLinkMatch.Prefix">Careers</MudNavLink>
+        <MudNavLink Href="/markets" Match="NavLinkMatch.Prefix">Markets</MudNavLink>
+        <MudNavLink Href="/services" Match="NavLinkMatch.Prefix">Services</MudNavLink>
+
+
+    </MudNavGroup>
+
+    <MudNavGroup Title="Employees" Expanded="true">
+
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="/uploadprojectphotos" Match="NavLinkMatch.Prefix">Upload Project Photos</MudNavLink>
+
+
+            </Authorized>
+            <NotAuthorized>
+
+
+            </NotAuthorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <MudNavLink Href="/products" Match="NavLinkMatch.Prefix">Products</MudNavLink>
+
+            </Authorized>
+
+      </AuthorizeView>
+    </MudNavGroup>
+      
+</MudNavMenu>
+
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

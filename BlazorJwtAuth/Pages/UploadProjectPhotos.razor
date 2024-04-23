@@ -1,0 +1,257 @@
+﻿@page "/uploadprojectphotos"
+@using BlazorJwtAuth.Models
+
+@inject HttpClient Http
+<style>
+    .file-input-zone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #594AE2;
+        color: white;
+        cursor: pointer;
+        position: relative;
+        width: 140px;
+        height: 36px;
+        border-color: transparent;
+        margin-top: 8px;
+        padding-top: 8px;
+        padding-left: 10px;
+        border-radius: 4px;
+    }
+
+        .file-input-zone input[type=file] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+</style>
+<MudGrid>
+    <MudItem xs="12">
+        <MudText Typo="Typo.h6" Color="Color.Surface">Upload Project Photos</MudText>
+
+    </MudItem>
+
+    <MudItem xs="12">
+
+        <MudAlert Severity="Severity.Info">@message</MudAlert>
+
+    </MudItem>
+
+
+    <MudItem xs="12">
+        <MudPaper Class="pa-4">
+
+            <MudDatePicker Label="select date" TextChanged="OnDateSelected"></MudDatePicker>
+
+        </MudPaper>
+
+    </MudItem>
+
+    <MudItem xs="12">
+
+        <MudPaper Class="pa-4">
+            @if (details == null)
+            {
+                @if (HideLabel == true)
+                {
+                    <MudSelect T="string" @bind-Value=@selectedFile Variant="Variant.Outlined" AdornmentColor="Color.Primary">
+                        <MudSelectItem Value="@selectedFile" Disabled="true">No Files Loaded</MudSelectItem>
+
+                    </MudSelect>
+                }
+                else
+                {
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                }
+
+            }
+            else if (details.Count() == 0)
+            {
+                <MudSelect T="string" @bind-Value=@selectedFile Variant="Variant.Outlined" AdornmentColor="Color.Primary">
+                    <MudSelectItem Value="@selectedFile" Disabled="true">No Files Found</MudSelectItem>
+
+                </MudSelect>
+            }
+
+            else
+            {
+
+                <MudSelect T="string" @bind-Value=@selectedFile Placeholder="Please Select" Variant="Variant.Outlined" AdornmentColor="Color.Primary">
+                    <MudSelectItem Value="@selectedFile" Disabled="true">Please Select</MudSelectItem>
+                    @foreach (var detail in details)
+                    {
+                        <MudSelectItem Value="@detail.FileNumber">@detail.ProjectInfo</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </MudPaper>
+    </MudItem>
+
+
+
+</MudGrid>
+
+
+    <MudGrid Spacing=6 Justify="Justify.Center">
+        <MudItem>
+
+            @for (int i = 0; i <= currentFileSelection; i++)
+            {
+                @if (i != currentFileSelection)
+                {
+                    HideDivDisplay = "none";
+                }
+                else
+                {
+                    HideDivDisplay = "inline-block";
+                }
+                <div class="file-input-zone" style="display:@HideDivDisplay;">
+                    <InputFile accept=".png,.jpg,.jpeg,.bmp" multiple OnChange="LoadImage" type="file" />
+                    SELECT PHOTOS
+                </div>
+            }
+
+        </MudItem>
+        <MudSpacer />
+        <MudItem Class="">
+
+            <MudButton class="mt-2" OnClick="UploadPhotos" Variant="Variant.Filled" Color="Color.Primary">Upload</MudButton>
+
+        </MudItem>
+    </MudGrid>
+    <MudGrid Spacing=2 Justify="Justify.Center">
+        @foreach (var Imagelistitem in ImageList)
+        {
+            <MudItem Style="display:flex;">
+
+
+                <MudCard>
+                    <img src="@Imagelistitem.Value" />
+                    <br />
+                    <MudCardContent Style="min-height: 10px">
+
+                    </MudCardContent>
+                    <MudCardActions Style="position:absolute;bottom:0">
+
+                    </MudCardActions>
+
+                </MudCard>
+                <br />
+
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="()=>RemoveImage(Imagelistitem.Key)" aria-label="delete"></MudIconButton>
+            </MudItem>
+        }
+    </MudGrid>
+    @code
+{
+        private bool HideLabel { get; set; } = true;
+        private string HideDivDisplay { get; set; } = "inline-block";
+        private int currentFileSelection = 0;
+        private string imageURL = string.Empty;
+
+        private string imageURLKey = string.Empty;
+        private string message = "Photos";
+        private Dictionary<string, string> ImageList = new Dictionary<string, string>();
+        private IEnumerable<FileDetails>? details;
+        private string selectedFile { get; set; } = string.Empty;
+        private int maxAllowedFiles = 10;
+        private long maxFileSize = 100000;
+        private List<string> fileNames = new List<string>();
+        private string selectedDate = DateTime.Now.Date.ToString();
+        private Dictionary<string, IBrowserFile> ImageDict = new Dictionary<string, IBrowserFile>();
+
+
+        public async Task OnDateSelected(string dt)
+        {
+            message = "Photos";
+            HideLabel = false;
+            selectedDate = dt;
+
+            string selecteddatestring = selectedDate.Replace("/", "-");
+            int id = 1;
+            details = await Http.GetFromJsonAsync<IEnumerable<FileDetails>>($"FileDetails/{id}/{selecteddatestring}");
+            this.StateHasChanged();
+        }
+
+
+
+        private void loadmessage()
+        {
+            message = "Photos";
+        }
+
+
+        private async Task LoadImage(InputFileChangeEventArgs e)
+        {
+
+            message = "Photos";
+            var files = e.GetMultipleFiles(maxAllowedFiles);
+
+            var format = "image/png";
+            foreach (var imageFile in files)
+            {
+                var resizedImageFile = await imageFile.RequestImageFileAsync(format, 200, 200);
+                var buffer = new byte[resizedImageFile.Size];
+                await resizedImageFile.OpenReadStream().ReadAsync(buffer);
+                string guidvar = Guid.NewGuid().ToString();
+                var ImageDataUrl = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+                ImageList.Add(guidvar, ImageDataUrl);
+
+
+                ImageDict.Add(guidvar, imageFile);
+                this.StateHasChanged();
+            }
+            currentFileSelection++;
+
+        }
+        private void RemoveImage(string key)
+        {
+            message = "Photos";
+            ImageList.Remove(key);
+            ImageDict.Remove(key);
+            this.StateHasChanged();
+
+        }
+        private async void UploadPhotos()
+        {
+            message = "Photos";
+
+            if (ImageList.Count() == 0)
+            {
+                message = "No Photos selected";
+                this.StateHasChanged();
+
+            }
+            else if (selectedFile == string.Empty)
+            {
+                message = "No File Number selected";
+                this.StateHasChanged();
+            }
+            else
+            {
+                using var content = new MultipartFormDataContent();
+                foreach (var file in ImageDict)
+                {
+
+                    var filecontent = new StreamContent(file.Value.OpenReadStream(maxFileSize));
+                    filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.Value.ContentType);
+                    fileNames.Add(file.Key + file.Value.Name);
+                    content.Add(
+                    content: filecontent,
+                    name: "\"files\"",
+                    fileName: file.Key + file.Value.Name);
+
+                }
+                var response = await Http.PostAsync("UploadProjectPhotos", content);
+
+
+                ImageList.Clear();
+                ImageDict.Clear();
+                message = "Photos Uploaded";
+                this.StateHasChanged();
+            }
+        }
+    }

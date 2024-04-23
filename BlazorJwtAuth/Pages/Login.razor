@@ -1,0 +1,56 @@
+﻿@page "/login"
+@using BlazorJwtAuth.Models;
+@inject IAuthenticationService _authService;
+@inject NavigationManager _navMgr;
+@using System.ComponentModel.DataAnnotations
+
+<MudText Typo="Typo.h6" Color="Color.Primary">Login</MudText>
+
+ <MudAlert Severity="Severity.Info">@errormessage</MudAlert>
+
+<EditForm Model="@loginModel" OnValidSubmit="DoLogin">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    
+                    <MudTextField Label="User Name" Class="mt-3"
+                                      @bind-Value="loginModel.Username" For="@(() => loginModel.Username)" />
+                    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                                      @bind-Value="loginModel.Password" For="@(() => loginModel.Password)" InputType="InputType.Password" />
+                   
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+       
+    </MudGrid>
+</EditForm>
+
+
+
+
+
+
+@code {
+    LoginDTO loginModel = new();
+    LoginResponse loginResponse = new();
+    string errormessage = "";
+    async Task DoLogin()
+    {
+        loginResponse.Message = "Wait....";
+        loginResponse = await _authService.Login(loginModel);
+        if (loginResponse.StatusCode == 1)
+        {
+            _navMgr.NavigateTo("/");
+        }
+        else
+        {
+            errormessage = loginResponse.Message;
+            this.StateHasChanged();
+        }
+    }
+}
